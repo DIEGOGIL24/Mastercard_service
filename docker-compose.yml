@@ -1,0 +1,17 @@
+services:
+  postgres-mastercard:
+    image: postgres:16-alpine
+    container_name: postgres_mastercard
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mc_user
+      POSTGRES_PASSWORD: mc_pass
+      POSTGRES_DB: mc_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_mastercard_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_mastercard_data:
