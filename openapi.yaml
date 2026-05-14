@@ -1,0 +1,106 @@
+openapi: 3.0.0
+info:
+  title: Mastercard Processing Service
+  description: Servicio de procesamiento de tarjetas Mastercard
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3002
+    description: Servidor local
+
+paths:
+  /health:
+    get:
+      summary: Estado del servicio
+      description: Verifica que el servicio esté corriendo correctamente
+      responses:
+        '200':
+          description: Servicio activo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  servicio:
+                    type: string
+                    example: Mastercard
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /procesar:
+    post:
+      summary: Procesar tarjeta Mastercard
+      description: Recibe el PAN y código de seguridad, y retorna si la tarjeta está autorizada
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pan
+                - codigo_seguridad
+              properties:
+                pan:
+                  type: string
+                  description: Número de la tarjeta Mastercard (16 dígitos, empieza en 5)
+                  example: "5532150089224410"
+                codigo_seguridad:
+                  type: string
+                  description: Código de seguridad de la tarjeta
+                  example: "823"
+      responses:
+        '200':
+          description: Resultado del procesamiento
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permitido:
+                    type: boolean
+                    example: true
+                  descripcion:
+                    type: string
+                    example: Validación autorizada
+              examples:
+                autorizado:
+                  summary: Tarjeta válida
+                  value:
+                    permitido: true
+                    descripcion: Validación autorizada
+                rechazado:
+                  summary: Tarjeta inválida
+                  value:
+                    permitido: false
+                    descripcion: Datos de tarjeta inválidos
+        '400':
+          description: Faltan campos requeridos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              examples:
+                sin_pan:
+                  value:
+                    error: pan es requerido
+                sin_codigo:
+                  value:
+                    error: codigo_seguridad es requerido
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Error interno del servidor
